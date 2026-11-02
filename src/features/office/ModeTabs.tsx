@@ -47,6 +47,7 @@ export function ModeTabs() {
             ? <Link role="tab" aria-selected={inRoom} to={`/department/${roomTarget}`} className={tab(inRoom)}>Trong phòng</Link>
             : <span role="tab" aria-selected={false} aria-disabled="true" className={`${tab(false)} opacity-50`}>Trong phòng</span>}
           <Link role="tab" aria-selected={inNetwork} to="/network" className={tab(inNetwork)}>Sơ đồ mạng</Link>
+          <Link role="tab" aria-selected={false} to="/floor/tang-1" className={tab(false)}>Theo tầng</Link>
         </div>
         {inRoom && (
           <button onClick={() => setPanel(!panelOpen)} aria-pressed={panelOpen} className="min-h-10 shrink-0 whitespace-nowrap rounded-lg border border-slate-300 px-3 text-sm hover:bg-slate-50 aria-pressed:bg-slate-100 lg:min-h-0 lg:py-1.5">

@@ -223,3 +223,12 @@ Toast: FE chỉ tạo toast từ `notification.created` (cùng `type` + `target`
 
 ## J. Agent Studio, công cụ/quyền, model, kho tài liệu, bộ nhớ, mẫu agent (Prompt 4D)
 Đã chuyển sang `docs/BE_API_SPEC_PART3.md` (đặc tả đầy đủ, bổ sung dần theo từng bước). Schema zod: `src/types/{tools,models,knowledge,memory,studio,studioEvents}.ts`; mock: `src/mocks/studio/*`.
+
+## K. Sprite / nhân vật (Prompt 5B)
+- `Agent.avatar?: { skin, hair, outfit }` (hex, từng field tuỳ chọn). Thiếu thì FE suy ra từ `id` (màu da/tóc) và `Agent.color` (áo) — xem `src/features/sprites/avatar.ts`.
+- Hướng ngồi (`SEAT.facing`), catalog đồ vật và bố cục tầng: chưa có; FE dùng mock (`src/features/sprites/catalog.ts`) tới Bước 3.
+- "Chờ phụ thuộc" (`sit_think`) cần cờ riêng trên agent/task; hiện FE chưa có nguồn nên chỉ hiển thị được qua `waitingDependency` khi scene truyền vào.
+- **Tầng / bố cục (5B Bước 3).** Schema FE tự định nghĩa ở `src/types/floor.ts` (ô 32px), chờ đối chiếu với JSON thật của 5A:
+  `GET /floors` -> `[{id, slug, name, order}]`; `GET /floors/{slug}/layout` -> bố cục XUẤT BẢN `{floorSlug, version, width, height, rooms[{id,name,kind: department|corridor|lobby,departmentId,rect,walls,floorStyle{pattern,color},wallColor,doors[{x,y,side}]}], objects[{id,catalogKey,x,y,agentId}], seats[{agentId,objectId,facing}]}`;
+  `POST /floors/{slug}/layout/regenerate` -> bố cục mặc định mới (BE: vào bản nháp; mock: thay luôn bản hiện hành). ObjectCatalog hiện là mock tĩnh (`src/features/sprites/catalog.ts`).
+- **Đồ vật có trạng thái (5B Bước 4).** `FloorObject.deviceId` (tủ rack ↔ thiết bị: đèn theo `metrics.cpuPct`/`status`); két sắt đọc số dư của ngân sách `COMPANY` (`limit - used - reserved`); bảng mục tiêu đọc mục tiêu `RUNNING` mới cập nhật nhất + tiến độ tính từ task. Không có dữ liệu thì hiện trống/"Không có mục tiêu", không bịa số.
