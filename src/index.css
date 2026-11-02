@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-brand: #1d4ed8;
+  --color-brand-dark: #1e3a8a;
+  --radius-card: 12px;
+  --shadow-card: 0 1px 3px rgb(15 23 42 / 0.08), 0 1px 2px rgb(15 23 42 / 0.06);
+}
+
+html, body, #root { height: 100%; }
+body { @apply bg-slate-50 text-slate-900 font-sans antialiased; }
+
+@keyframes slide-x { from { transform: translateX(100%); } }
+@keyframes slide-y { from { transform: translateY(100%); } }
+.panel-enter { animation: slide-y 0.2s ease-out; }
+@media (min-width: 1024px) { .panel-enter { animation-name: slide-x; } }
+
+/* Kiểu tối thiểu cho markdown (không dùng plugin typography) */
+.md { font-size: 0.875rem; line-height: 1.5; }
+.md h1, .md h2, .md h3 { font-weight: 600; margin: 0.5rem 0 0.25rem; }
+.md ul { list-style: disc; padding-left: 1.25rem; }
+.md ol { list-style: decimal; padding-left: 1.25rem; }
+.md code { background: #f1f5f9; border-radius: 4px; padding: 0 4px; }
+.md pre { background: #f1f5f9; border-radius: 8px; padding: 8px; overflow-x: auto; }
+.md a { color: var(--color-brand); text-decoration: underline; }
+
+/* Chuông phê duyệt rung khi có yêu cầu mới (chỉ khi người dùng không bật giảm chuyển động) */
+@keyframes bell-ring { 0%, 100% { transform: rotate(0); } 20% { transform: rotate(16deg); } 40% { transform: rotate(-14deg); } 60% { transform: rotate(9deg); } 80% { transform: rotate(-6deg); } }
+@media (prefers-reduced-motion: no-preference) { .bell-ring { animation: bell-ring 0.8s ease-in-out 3; transform-origin: 50% 0; } }
+
+/* Toast trượt vào (chỉ khi người dùng không bật giảm chuyển động) */
+@keyframes toast-in { from { opacity: 0; transform: translateX(16px); } }
+@media (prefers-reduced-motion: no-preference) { .toast-in { animation: toast-in 0.2s ease-out; } }
+
+/* Thẻ Kanban hiện ra: chuyển cột (do sự kiện realtime) có hiệu ứng ngắn; tắt khi giảm chuyển động */
+@keyframes card-in { from { opacity: 0; transform: translateY(6px); } }
+@media (prefers-reduced-motion: no-preference) { .card-in { animation: card-in 0.25s ease-out; } }
+
+/* Vòng focus rõ cho mọi phần tử tương tác khi dùng bàn phím (nút, liên kết, ô nhập, thẻ kéo thả). */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 2px solid var(--color-brand); outline-offset: 2px; }
