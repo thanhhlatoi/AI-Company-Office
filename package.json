@@ -8,7 +8,10 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "node --test src/lib/*.test.ts src/features/kanban/*.test.ts src/features/costs/*.test.ts src/features/history/*.test.ts src/features/studio/*.test.ts src/features/tools/*.test.ts src/features/models/*.test.ts src/features/knowledge/*.test.ts src/features/templates/*.test.ts"
+    "test": "node --test src/lib/*.test.ts src/features/kanban/*.test.ts src/features/costs/*.test.ts src/features/history/*.test.ts src/features/studio/*.test.ts src/features/tools/*.test.ts src/features/models/*.test.ts src/features/knowledge/*.test.ts src/features/templates/*.test.ts src/features/sprites/*.test.ts src/features/floor/*.test.ts tools/*.test.ts tools/aseprite-to-pixi/*.test.ts",
+    "assets:check": "node tools/assets-check.ts",
+    "assets:aseprite": "node tools/aseprite-to-pixi/cli.ts",
+    "assets:sample": "node tools/sample-pack/cli.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

@@ -1,0 +1,20 @@
+{
+  "frames": {
+    "carpet": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      }
+    }
+  },
+  "meta": {
+    "image": "pixel_tiles.png",
+    "size": {
+      "w": 32,
+      "h": 32
+    },
+    "scale": "1"
+  }
+}

@@ -13,10 +13,14 @@ export interface Settings {
   showVnd: boolean
   /** Tỉ giá đ/USD */
   vndRate: number
+  /** Chất lượng vẽ tầng: 'auto' = tự hạ khi FPS thấp; mức cố định thì chỉ gợi ý, không tự đổi */
+  quality: 'auto' | 'low' | 'medium' | 'high'
+  /** Người dùng tự bật giảm chuyển động (cộng với prefers-reduced-motion của hệ thống) */
+  reduceMotion: boolean
 }
 
 const KEY = 'agentoffice.settings'
-const DEFAULTS: Settings = { randomWalk: false, walkSpeed: 90, showHandoff: true, showVnd: false, vndRate: DEFAULT_VND_RATE }
+const DEFAULTS: Settings = { randomWalk: false, walkSpeed: 90, showHandoff: true, showVnd: false, vndRate: DEFAULT_VND_RATE, quality: 'auto', reduceMotion: false }
 
 function load(): Settings {
   try {
@@ -26,6 +30,8 @@ function load(): Settings {
       showHandoff: raw.showHandoff !== false,
       showVnd: raw.showVnd === true,
       vndRate: typeof raw.vndRate === 'number' && raw.vndRate > 0 ? raw.vndRate : DEFAULT_VND_RATE,
+      reduceMotion: raw.reduceMotion === true,
+      quality: raw.quality === 'low' || raw.quality === 'medium' || raw.quality === 'high' ? raw.quality : 'auto',
       walkSpeed: typeof raw.walkSpeed === 'number' ? Math.min(180, Math.max(60, raw.walkSpeed)) : DEFAULTS.walkSpeed,
     }
   } catch { return DEFAULTS }
@@ -37,7 +43,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   ...load(),
   update: (patch) => {
     set(patch)
-    const { randomWalk, walkSpeed, showHandoff, showVnd, vndRate } = get()
-    try { localStorage.setItem(KEY, JSON.stringify({ randomWalk, walkSpeed, showHandoff, showVnd, vndRate })) } catch { /* không lưu được thì thôi */ }
+    const { randomWalk, walkSpeed, showHandoff, showVnd, vndRate, quality, reduceMotion } = get()
+    try { localStorage.setItem(KEY, JSON.stringify({ randomWalk, walkSpeed, showHandoff, showVnd, vndRate, quality, reduceMotion })) } catch { /* không lưu được thì thôi */ }
   },
 }))

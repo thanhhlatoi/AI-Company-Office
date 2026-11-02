@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { lazy, useEffect } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import AppLayout from './components/AppLayout'
 import { useAgentsSync } from './features/agents/hooks'
@@ -31,7 +31,11 @@ const TemplatesPage = lazy(() => import('./pages/TemplatesPage'))
 const TemplateWizardPage = lazy(() => import('./pages/TemplateWizardPage'))
 const CollectionPage = lazy(() => import('./pages/CollectionPage'))
 const ModelComparePage = lazy(() => import('./pages/ModelComparePage'))
+const CreditsPage = lazy(() => import('./pages/CreditsPage'))
+const FloorPage = lazy(() => import('./pages/FloorPage'))
 const SecretsPage = lazy(() => import('./pages/SecretsPage'))
+const SpritesPage = import.meta.env.DEV ? lazy(() => import('./features/sprites/SpritesPage.tsx')) : null
+const ActorsPage = import.meta.env.DEV ? lazy(() => import('./features/sprites/ActorsPage.tsx')) : null
 import { setNavigator } from './lib/navigation'
 import { loadSnapshot } from './realtime/eventSync'
 import { connectRealtime } from './realtime/connection'
@@ -49,9 +53,14 @@ export default function App() {
   useEffect(() => connectRealtime(qc), [qc])
   return (
     <Routes>
+      {SpritesPage && <Route path="/dev/sprites" element={<Suspense fallback={null}><SpritesPage /></Suspense>} />}
+      {import.meta.env.DEV && <Route path="/dev/floor" element={<Navigate to="/floor/tang-1?debug=1" replace />} />}
+      {ActorsPage && <Route path="/dev/actors" element={<Suspense fallback={null}><ActorsPage /></Suspense>} />}
       <Route element={<AppLayout />}>
         <Route path="/" element={<Navigate to="/company" replace />} />
         <Route path="/company" element={<OfficePage />} />
+        <Route path="/floor/:slug" element={<FloorPage />} />
+        <Route path="/credits" element={<CreditsPage />} />
         <Route path="/department/:slug" element={<OfficePage />} />
         <Route path="/department/:slug/agent/:id" element={<OfficePage />} />
         <Route path="/settings/notifications" element={<NotificationSettingsPage />} />

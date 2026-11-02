@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "tileSize": 32,
+  "assetScale": 1,
+  "pixelArt": true,
+  "packs": [
+    {
+      "id": "sample-pixel",
+      "name": "AgentOffice mẫu (pixel)",
+      "author": "AgentOffice",
+      "sourceUrl": "",
+      "license": "CC0-1.0",
+      "attributionRequired": false,
+      "notes": "Sinh bằng tools/sample-pack, chỉ để kiểm chứng đường nạp tài nguyên."
+    }
+  ],
+  "characterLayers": [
+    {
+      "id": "body_pixel",
+      "kind": "body",
+      "style": "pixel",
+      "atlas": "sprites/characters/body_pixel.json",
+      "tintable": true,
+      "order": 0,
+      "pack": "sample-pixel"
+    }
+  ],
+  "props": [
+    {
+      "catalogKey": "plant",
+      "atlas": "sprites/props/pixel_props.json",
+      "animation": "plant_sway"
+    }
+  ],
+  "tiles": [
+    {
+      "pattern": "carpet",
+      "atlas": "sprites/tiles/pixel_tiles.json",
+      "frame": "carpet",
+      "tintable": true
+    }
+  ]
+}
