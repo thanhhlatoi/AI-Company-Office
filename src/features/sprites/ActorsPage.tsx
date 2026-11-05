@@ -25,7 +25,7 @@ const COLORS = ['#2563eb', '#c93d31', '#15803d', '#a8379a', '#b8530a', '#0e7490'
 const COLS = 4, CELL_W = 250, CELL_H = 190
 
 const agentOf = (i: number, c: Case): Agent => ({
-  id: `agent-${i}`, name: ['Lan', 'Minh', 'Hà', 'Quân'][i % 4], role: c.head ? 'Trưởng phòng' : 'Kế toán', model: 'x', systemPrompt: '', color: COLORS[i % COLORS.length],
+  id: `agent-${i}`, name: ['Lan', 'Minh', 'Hà', 'Quân'][i % 4], role: c.head ? 'Trưởng phòng' : 'Kế toán', model: 'x', skills: [], systemPrompt: '', color: COLORS[i % COLORS.length],
   status: c.status, currentTask: c.status === 'WORKING' ? { id: 't', title: 'Đối soát công nợ tháng 10' } : null, departmentId: null, isHead: !!c.head, runsOnDeviceId: null,
 })
 

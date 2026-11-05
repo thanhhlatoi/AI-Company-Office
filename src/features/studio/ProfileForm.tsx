@@ -26,7 +26,7 @@ export function ProfileForm({ agent }: { agent: Agent }) {
   const submit = (e: FormEvent) => {
     e.preventDefault()
     if (!v.name.trim() || !v.role.trim()) return toast('Tên và vai trò là bắt buộc', 'error')
-    save.mutate({ id: agent.id, input: { name: v.name.trim(), role: v.role.trim(), color: v.color, systemPrompt: agent.systemPrompt, model: agent.model, departmentId: v.departmentId || null } }, { onSuccess: () => toast('Đã lưu hồ sơ'), onError: () => toast('Lưu hồ sơ thất bại', 'error') })
+    save.mutate({ id: agent.id, input: { name: v.name.trim(), role: v.role.trim(), color: v.color, systemPrompt: agent.systemPrompt, model: agent.model, skills: agent.skills, departmentId: v.departmentId || null } }, { onSuccess: () => toast('Đã lưu hồ sơ'), onError: () => toast('Lưu hồ sơ thất bại', 'error') })
   }
   return (
     <>

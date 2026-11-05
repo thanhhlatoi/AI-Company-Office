@@ -51,7 +51,7 @@ export function templatesRoute(method: string, path: string, body: unknown): unk
       if (tool.requiresAdminFlag && !tool.adminFlagOn) fail(403, `Công cụ "${tool.name}" cần bật cờ xác nhận ở trang quản trị`, { reasonCode: 'ADMIN_FLAG_OFF' })
       checkScope(tool.scopeSchema, g.scope)
     }
-    const a = { id: newId(), name: i.name.trim(), role: i.role.trim(), model: i.model.primaryId, systemPrompt: renderTemplate(t, i.variables), color: COLORS[mockDb.agents.length % COLORS.length], status: 'IDLE' as const, currentTask: null, departmentId: i.departmentId ?? null, isHead: false, runsOnDeviceId: null }
+    const a = { id: newId(), name: i.name.trim(), role: i.role.trim(), model: i.model.primaryId, systemPrompt: renderTemplate(t, i.variables), color: COLORS[mockDb.agents.length % COLORS.length], status: 'IDLE' as const, currentTask: null, departmentId: i.departmentId ?? null, isHead: false, runsOnDeviceId: null, skills: [] as string[] }
     mockDb.agents.push(a)
     policies.set(a.id, { agentId: a.id, ...i.model })
     const now = iso(Date.now())

@@ -41,6 +41,7 @@ export function SettingsMenu() {
             <span className="mt-1 flex items-center gap-2 pl-6 text-xs text-slate-600">Tỉ giá <input type="number" min={1} step={100} value={vndRate} disabled={!showVnd} aria-label="Tỉ giá đồng trên đô la" onChange={(e) => Number(e.target.value) > 0 && update({ vndRate: Number(e.target.value) })} className="w-24 rounded border border-slate-300 px-1.5 py-0.5 disabled:opacity-50" /> đ/USD</span>
           </label>
           <Link to="/settings/notifications" onClick={() => setOpen(false)} className="block rounded-lg border border-slate-300 px-3 py-2 text-center font-medium hover:bg-slate-50">Cài đặt thông báo…</Link>
+          <Link to="/settings/ai" onClick={() => setOpen(false)} className="block rounded-lg border border-slate-300 px-3 py-2 text-center font-medium hover:bg-slate-50">Cài đặt AI…</Link>
         </div>
       )}
     </div>

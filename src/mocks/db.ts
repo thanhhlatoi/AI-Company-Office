@@ -18,7 +18,7 @@ DEPARTMENTS.filter((d) => d.enabled).forEach((d, order) => {
       systemPrompt: `Bạn là ${m.name} (${m.role}) thuộc phòng ${d.name}.`,
       // trưởng phòng mặc áo màu phòng cho dễ nhận
       color: isHead ? PALETTES[d.palette].accent : SHIRTS[agentSeq % SHIRTS.length],
-      status: 'IDLE', currentTask: null, departmentId, isHead, runsOnDeviceId: m.runsOn ?? null,
+      status: 'IDLE', currentTask: null, departmentId, isHead, runsOnDeviceId: m.runsOn ?? null, skills: m.skills ?? [],
     }
   }
   const head = make(d.head, true)

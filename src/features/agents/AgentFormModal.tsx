@@ -1,6 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { Modal } from '../../components/Modal'
 import { AGENT_MODELS } from '../../lib/config'
+import { MAX_SKILLS, MAX_SKILL_LEN, parseSkills } from '../../lib/skills'
 import { useAgentStore } from '../../store/agentStore'
 import { useDepartmentStore } from '../../store/departmentStore'
 import { useUiStore } from '../../store/uiStore'
@@ -8,7 +9,7 @@ import { AgentInputSchema, type AgentInput } from '../../types'
 import { useSaveAgent } from './hooks'
 
 type Errors = Partial<Record<keyof AgentInput, string>>
-const EMPTY: AgentInput = { name: '', role: '', systemPrompt: '', model: AGENT_MODELS[0], color: '#2563eb' }
+const EMPTY: AgentInput = { name: '', role: '', systemPrompt: '', model: AGENT_MODELS[0], color: '#2563eb', skills: [] }
 const input = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand focus:outline-none'
 
 export function AgentFormModal() {
@@ -28,12 +29,13 @@ function Form({ editId, presetDepartmentId }: { editId: string | null; presetDep
   const save = useSaveAgent()
   // Agent mới mặc định vào phòng được chỉ định, nếu không thì phòng đang xem
   const [values, setValues] = useState<AgentInput>(editing ?? { ...EMPTY, departmentId: presetDepartmentId ?? focusId ?? '' })
+  const [skillsText, setSkillsText] = useState((editing?.skills ?? []).join(', '))
   const [errors, setErrors] = useState<Errors>({})
   const set = (k: keyof AgentInput) => (e: { target: { value: string } }) => setValues({ ...values, [k]: e.target.value })
 
   const submit = (e: FormEvent) => {
     e.preventDefault()
-    const parsed = AgentInputSchema.safeParse(values)
+    const parsed = AgentInputSchema.safeParse({ ...values, skills: parseSkills(skillsText) })
     if (!parsed.success) {
       const errs: Errors = {}
       for (const i of parsed.error.issues) errs[i.path[0] as keyof AgentInput] ??= i.message
@@ -73,6 +75,12 @@ function Form({ editId, presetDepartmentId }: { editId: string | null; presetDep
             <option value="">Chưa phân phòng</option>
             {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
           </select>
+        ))}
+        {field('skills', 'Kỹ năng', (
+          <>
+            <input className={input} value={skillsText} onChange={(e) => setSkillsText(e.target.value)} placeholder="viết kịch bản, tiếng Việt, dịch EN" />
+            <span className="mt-1 block text-xs text-slate-600">Cách nhau bằng dấu phẩy. Tối đa {MAX_SKILLS} kỹ năng, mỗi cái {MAX_SKILL_LEN} ký tự (phần dư bị cắt). Hermes dùng để chọn agent giao việc.</span>
+          </>
         ))}
         {field('color', 'Màu áo', <input type="color" className="h-9 w-16 cursor-pointer" value={values.color} onChange={set('color')} />)}
         <div className="flex justify-end gap-2 pt-2">
