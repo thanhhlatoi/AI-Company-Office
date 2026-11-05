@@ -1,7 +1,113 @@
 # Đặc tả API cho Backend — PHẦN 3: Agent Studio, công cụ và quyền, model, kho tài liệu, bộ nhớ, mẫu agent (Prompt 4D)
 
 Bổ sung cho `BE_API_SPEC.md` (phần 1) và `BE_API_SPEC_PART2.md` (phần 2). Quy ước chung (tiền micro-USD, trang cursor `{items,nextCursor}`, id số/chuỗi, `id` DomainEvent, lỗi 409 `{reasonCode}`) giữ như phần 2, mục 0.
-Schema GIẢ ĐỊNH — nguồn sống: `src/types/{tools,models,knowledge,memory,studio,studioEvents}.ts`, hàm gọi `src/api/studio.ts`, mock chạy được `src/mocks/studio/*`. File này được bổ sung thêm theo từng bước làm (hiện: **Bước 1 — các lệnh ĐỌC, xem trước và thử quyền**; lệnh GHI sẽ thêm ở Bước 2–7).
+Schema GIẢ ĐỊNH cho tới khi có JSON thật — nguồn sống: `src/types/{tools,models,knowledge,memory,studio,studioEvents}.ts`, hàm gọi `src/api/{studio,knowledge,memory,templates}.ts`, BE giả chạy được `src/mocks/studio/*` (đọc để thấy hành vi mong đợi). Lệch schema thì FE báo lỗi `[API] … lệch schema` trong console.
+
+# 0. TỔNG HỢP — đọc phần này trước khi làm BE
+
+**76 REST + 6 realtime** (Prompt 4D). Các mục 1–12 bên dưới là chi tiết request/response; phần này là bản đồ.
+
+## 0.1 Danh sách toàn bộ API mới
+Mức: **P0** = FE gọi ngay khi mở trang (thiếu thì trang lỗi), **P1** = FE gọi khi người dùng thao tác. "Mục" = nơi có request/response chi tiết.
+
+**A. Công cụ, quyền, bí mật**
+| API | Mức | Mục |
+|---|---|---|
+| `GET /tools` | P0 | 1 |
+| `GET /grants?agentId` | P0 | 1 |
+| `GET /agents/{id}/effective-permissions` | P0 | 1 |
+| `GET /effective-permissions` (mọi agent) | P0 | 1 |
+| `POST /agents/{id}/permissions/preview` | P1 | 1 |
+| `POST /tools/{toolId}/check` (thử quyền, không thực thi) | P1 | 1 |
+| `GET /tool-calls?agentId&toolId&decision&denied&cursor&limit` | P0 | 1 |
+| `GET /secrets` | P0 | 1 |
+| `GET /permission-audit?cursor&limit` | P0 | 1 |
+| `PUT /agents/{id}/grants` | P1 | 8 |
+| `PUT /tools/{id}` (tắt khẩn cấp / cờ xác nhận) | P1 | 8 |
+| `POST /secrets` · `POST /secrets/{id}/rotate` · `DELETE /secrets/{id}` | P1 | 8 |
+
+**B. Model**
+| API | Mức | Mục |
+|---|---|---|
+| `GET /models` · `GET /agents/{id}/model-policy` · `GET /model-policies` · `GET /routing-rules` | P0 | 2, 9 |
+| `PUT /agents/{id}/model-policy` | P1 | 7 |
+| `POST /models/{id}/test` | P1 | 7 |
+| `POST /models` · `PUT /models/{id}` · `POST /models/{id}/check` | P1 | 9 |
+| `PUT /routing-rules` · `POST /routing/simulate` | P1 | 9 |
+| `POST /comparisons/estimate` · `POST /comparisons/run` · `POST /comparisons` · `GET /comparisons` | P1 | 9 |
+
+**C. Kho tài liệu**
+| API | Mức | Mục |
+|---|---|---|
+| `GET /collections` · `GET /collections/{id}` · `GET /embedding-models` | P0 | 3, 10 |
+| `GET /collections/{id}/documents` · `GET /documents/{id}/chunks` | P0 | 3 |
+| `GET /collections/{id}/search?q&asAgent` · `GET /collections/{id}/eval` | P1 | 3 |
+| `POST /collections` · `PUT /collections/{id}` · `POST /collections/{id}/reindex` · `POST /collections/{id}/sync` | P1 | 10 |
+| `POST /collections/{id}/documents` (multipart) · `POST /documents/{id}/replace` (multipart) · `POST /documents/{id}/reprocess` · `DELETE /documents/{id}` · `GET /documents/{id}/download` | P1 | 10 |
+| `POST /collections/{id}/eval/questions` · `DELETE /collections/{id}/eval/questions/{qid}` · `POST /collections/{id}/eval/run` | P1 | 10 |
+
+**D. Bộ nhớ**
+| API | Mức | Mục |
+|---|---|---|
+| `GET /memory?...` · `GET /memory/namespaces` · `GET /memory/export?agentId` | P0 | 4, 11 |
+| `PUT /memory/{id}` · `DELETE /memory/{id}` | P1 | 11 |
+| `POST /memory/{id}/review` · `POST /memory/review/bulk` | P1 | 11 |
+| `POST /memory/forget/preview` · `POST /memory/forget` | P1 | 11 |
+| `PUT /memory/namespaces/{id}` | P1 | 11 |
+| `GET /conversations/{id}/context` | P1 | 11 |
+
+**E. Agent Studio và mẫu**
+| API | Mức | Mục |
+|---|---|---|
+| `GET /agents/{id}/studio` · `GET /agents/{id}/prompt-versions` | P0 | 5 |
+| `POST /prompt/lint` | P1 | 5 |
+| `PUT /agents/{id}/studio` (quyền kho, bộ nhớ, chính sách bộ nhớ) | P1 | 10 |
+| `POST /agents/{id}/prompt-versions` · `POST /agents/{id}/prompt-versions/{vid}/restore` | P1 | 7 |
+| `POST /agents/{id}/template-sync` · `POST /departments/{id}/head` | P1 | 7 |
+| `GET /templates` · `GET /templates/{id}` · `GET /templates/{id}/agents` | P0 | 5 |
+| `POST /templates` · `POST /templates/import` · `POST /templates/{id}/clone` · `DELETE /templates/{id}` | P1 | 12 |
+| `POST /agents/{id}/save-as-template` · `POST /templates/{id}/instantiate` | P1 | 12 |
+
+**F. Realtime (6)**: `grant.changed`, `tool.denied`, `model.health_changed`, `document.status_changed`, `memory.pending_review`, `template.instantiated` — mục 6. Mọi message có thể kèm `id` DomainEvent và phải nằm trong `GET /events` (phần 2, mục 2.1).
+
+## 0.2 Thứ tự làm đề xuất
+1. **Bộ khung dữ liệu + đọc** (A–E mức P0) để các trang mở được: `tools`, `grants`, `effective-permissions`, `models`, `collections`, `memory`, `templates`, `studio`.
+2. **Quyền** (`PUT /agents/{id}/grants`, `check`, `preview`, `PUT /tools/{id}`, `tool-calls`, `permission-audit`) — đây là phần quan trọng nhất về an toàn: kiểm quyền phải nằm **ở BE khi agent gọi công cụ**, FE chỉ là giao diện.
+3. **Model** (`model-policy` giải `resolved`, `models/check`, health + `model.health_changed`).
+4. **Kho tài liệu** (upload → pipeline `UPLOADED→EXTRACTING→CHUNKING→EMBEDDING→READY` + `document.status_changed`, tìm có áp ACL).
+5. **Bộ nhớ** (hàng chờ xem xét, quên, xuất), rồi **mẫu** (`instantiate` một giao dịch).
+
+## 0.3 Bảng mã lỗi FE đang đọc
+| HTTP | `reasonCode` / body | Khi nào | FE làm gì |
+|---|---|---|---|
+| 400 | `{message}` | Dữ liệu sai: phạm vi công cụ thiếu/ngoài khoảng, CLOUD thiếu `secretId`, LOCAL thiếu `baseUrl`, MẬT mà embedding CLOUD, thiếu biến bắt buộc, prompt < 10 ký tự, `limit` < 1, 2–4 model khi so sánh | hiện đúng `message` |
+| 403 | `ADMIN_FLAG_OFF` | công cụ MONEY/DESTRUCTIVE chưa bật cờ | hiện `message` |
+| 403 | `TOOL_DISABLED` | công cụ đang tắt khẩn cấp | hiện `message` |
+| 403 | `{message}` | xoá mẫu dựng sẵn | hiện `message` |
+| 409 | `IN_USE` + `usedBy:[{agentId,toolId}]` | `DELETE /secrets/{id}` còn quyền tham chiếu | hiện danh sách đang dùng |
+| 409 | `{message}` | `reindex` khi đang dựng lại; `review` mục không còn chờ; tên bí mật trùng | hiện `message` |
+| 413 / 415 | `TOO_LARGE` / `UNSUPPORTED_TYPE` | upload tài liệu | hiện lỗi tiếng Việt |
+| 404 | — | id không tồn tại | hiện lỗi chung |
+
+## 0.4 Gợi ý bảng dữ liệu
+`tool` (cấu hình + `enabled`, `admin_flag_on`) · `grant` (agent×tool, `scope` JSON, `limits` JSON, `always_approve`) · `permission_audit` · `tool_call_log` (kèm `decision`, `reason`, `tainted`, `args` đã che bí mật) · `secret` (giá trị mã hoá, **không có API đọc ra**) · `model_profile` · `agent_model_policy` · `routing_rule` (có thứ tự) · `comparison` · `collection` + `collection_acl` · `document` (trạng thái, `error_code`, `trust`, `version`) · `chunk` (+ vector) · `eval_question` / `eval_run` · `memory_namespace` · `memory_item` (`origin`, `status`, `source`) · `prompt_version` · `agent_template` · `agent_studio_config` (templateId/version, memoryPolicy, quyền kho/ký ức).
+
+## 0.5 Checklist quy tắc BE (FE KHÔNG tự bảo vệ các điểm này)
+- [ ] **Kiểm quyền khi thực thi công cụ ở BE** theo `grant` + `scope` + `limits` + cờ + tắt khẩn cấp; `tool.denied` phát cho cả `NEEDS_APPROVAL`.
+- [ ] **Tam giác rủi ro**: agent có dữ liệu riêng + đọc nội dung ngoài + gửi ra ngoài → mọi hành động gửi ra ngoài sau khi đọc nội dung ngoài phải chờ duyệt (không tắt được).
+- [ ] **Không bao giờ trả giá trị bí mật** (API, log, `args`, `argsSnapshot`, hội thoại); che bằng `[REDACTED:LOẠI]`.
+- [ ] **Giải `model-policy.resolved`**: bỏ model vi phạm riêng tư / DOWN / máy local OFFLINE; `LOCAL_ONLY` tuyệt đối không rơi xuống cloud; không có → `modelId=null` + `blockedBy`.
+- [ ] **Dữ liệu MẬT chỉ nhúng bằng model LOCAL** (cả lúc tạo, sửa độ nhạy, và reindex).
+- [ ] **Tìm kiếm theo agent áp ACL thật** (mục AGENT > phòng ban > ALL; `NONE` = chặn); không có quyền → `visible:false`.
+- [ ] **Tài liệu `trust=EXTERNAL` và nội dung ngoài → task bị `tainted`**; ký ức suy ra từ nội dung ngoài (`EXTERNAL_INFERRED`) vào `PENDING_REVIEW` và **không được nạp vào task** trước khi chủ duyệt.
+- [ ] **Mẫu không tự cấp quyền**; mẫu nhập vào phải bỏ `scope`, giới hạn kích thước, chạy PromptLinter; `save-as-template` tự gỡ phần riêng của agent.
+- [ ] **`instantiate` là một giao dịch** (lỗi thì không tạo gì); ghi audit.
+- [ ] Mọi thay đổi quyền / cờ / tắt khẩn cấp ghi `permission_audit` và phát `grant.changed`.
+- [ ] Phân trang cursor ổn định `(sortKey, id)`; mọi message realtime có `id` DomainEvent liên tục.
+
+---
+
+## Chi tiết từng nhóm API
 
 **Bất biến an toàn BE phải giữ**
 - Không bao giờ trả giá trị bí mật (khoá API, mật khẩu, token): chỉ `id`, tên, loại, ngày, nơi đang dùng.

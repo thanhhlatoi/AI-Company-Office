@@ -4,7 +4,8 @@ Tài liệu tổng hợp MỌI thứ FE đang gọi / lắng nghe. Nguồn sự 
 - Schema zod FE: `src/types/index.ts` (FE kiểm tra mọi response bằng zod — lệch schema là FE báo lỗi, xem mục 0.4).
 - Hàm gọi API: `src/api/*.ts`. Mock chạy được như BE giả: `src/mocks/*` (đọc để thấy hành vi mong đợi).
 - Tài liệu cũ `docs/MISSING_API.md` vẫn còn nhưng file này thay thế nó (đầy đủ và chuẩn hơn).
-- **Phần 2 — `docs/BE_API_SPEC_PART2.md`**: toàn bộ API mới (mục tiêu, phê duyệt mở rộng, Kanban, dự án, chi phí/ngân sách, lịch sử hội thoại, dashboard, thông báo, `id` DomainEvent + `/events`). Làm BE thì đọc cả hai file.
+- **Phần 2 — `docs/BE_API_SPEC_PART2.md`**: toàn bộ API mới (mục tiêu, phê duyệt mở rộng, Kanban, dự án, chi phí/ngân sách, lịch sử hội thoại, dashboard, thông báo, `id` DomainEvent + `/events`). Làm BE thì đọc cả ba file.
+- **Phần 3 — `docs/BE_API_SPEC_PART3.md`**: Agent Studio, công cụ và quyền, bí mật, model, kho tài liệu, bộ nhớ, mẫu agent (76 REST + 6 realtime; mở đầu có bảng tổng hợp, thứ tự làm, mã lỗi và checklist quy tắc BE).
 
 Cột "Mức":
 - **P0** = FE đang gọi ngay, thiếu là hỏng màn hình.
