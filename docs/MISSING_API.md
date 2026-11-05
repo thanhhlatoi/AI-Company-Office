@@ -232,3 +232,8 @@ Toast: FE chỉ tạo toast từ `notification.created` (cùng `type` + `target`
   `GET /floors` -> `[{id, slug, name, order}]`; `GET /floors/{slug}/layout` -> bố cục XUẤT BẢN `{floorSlug, version, width, height, rooms[{id,name,kind: department|corridor|lobby,departmentId,rect,walls,floorStyle{pattern,color},wallColor,doors[{x,y,side}]}], objects[{id,catalogKey,x,y,agentId}], seats[{agentId,objectId,facing}]}`;
   `POST /floors/{slug}/layout/regenerate` -> bố cục mặc định mới (BE: vào bản nháp; mock: thay luôn bản hiện hành). ObjectCatalog hiện là mock tĩnh (`src/features/sprites/catalog.ts`).
 - **Đồ vật có trạng thái (5B Bước 4).** `FloorObject.deviceId` (tủ rack ↔ thiết bị: đèn theo `metrics.cpuPct`/`status`); két sắt đọc số dư của ngân sách `COMPANY` (`limit - used - reserved`); bảng mục tiêu đọc mục tiêu `RUNNING` mới cập nhật nhất + tiến độ tính từ task. Không có dữ liệu thì hiện trống/"Không có mục tiêu", không bịa số.
+
+## L. Kỹ năng agent (Hermes điều phối)
+- `Agent.skills: string[]` (nhãn tự do, tối đa 12 cái, mỗi cái tối đa 30 ký tự; FE bỏ trùng không phân biệt hoa thường). Thiếu thì FE coi là `[]`. `AgentInput.skills` cùng dạng, gửi kèm `POST /agents` và `PUT /agents/{id}`.
+- BE cần: lưu `skills` theo agent; khi Hermes lập kế hoạch (`planner=hermes`), đưa cho Hermes danh sách `{agentId, name, role, department, skills, model đã giải}` để chọn agent theo kỹ năng. FE chỉ hiển thị bảng này ở `/models?tab=roster`, không giao việc.
+- Chưa quyết: kỹ năng chỉ là nhãn, hay sẽ gắn với bộ công cụ được cấp (Công cụ và quyền).

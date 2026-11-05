@@ -11,6 +11,7 @@ import { useUiStore } from '../../store/uiStore'
 import type { Agent } from '../../types'
 import { AgentBudget } from '../costs/AgentBudget'
 import { AgentModelInfo } from '../models/AgentModelInfo'
+import { SkillChips } from '../models/SkillChips'
 import { useDeleteAgent } from './hooks'
 import { MovementCard } from './MovementCard'
 
@@ -50,6 +51,8 @@ export function OverviewTab({ agent, onDeleted }: { agent: Agent; onDeleted: () 
       )}
       <dl className="grid grid-cols-[100px_1fr] gap-y-2 text-sm">
         <AgentModelInfo agentId={agent.id} fallback={agent.model} />
+        <dt className="text-slate-600">Kỹ năng</dt>
+        <dd><SkillChips skills={agent.skills} /></dd>
         <dt className="text-slate-600">Trạng thái</dt><dd><StatusBadge agent={agent} /></dd>
         <dt className="text-slate-600">Task hiện tại</dt><dd>{agent.currentTask?.title ?? '—'}</dd>
         {device && (

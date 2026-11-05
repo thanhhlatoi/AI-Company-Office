@@ -8,6 +8,7 @@ import { notifyRequest } from './biz/notify'
 import { bizRequest } from './biz/routes'
 import { studioRequest } from './studio/routes'
 import { floorRequest } from './floorRoutes'
+import { settingsAiRequest } from './settingsAi'
 import { workRequest } from './work'
 import { runMockApprove, runMockGoal, runMockTask } from './simulator'
 import type { Agent, AgentInput, Task } from '../types'
@@ -16,6 +17,7 @@ import type { Agent, AgentInput, Task } from '../types'
 export async function mockRequest(method: string, path: string, body: unknown): Promise<unknown> {
   await new Promise((r) => setTimeout(r, 150)) // độ trễ mạng giả
   if (path === '/departments') return structuredClone(mockDb.departments)
+  if (path.startsWith('/settings/ai')) { const r = await settingsAiRequest(method, path, body); if (r !== undefined) return structuredClone(r) }
   const floor = floorRequest(method, path)
   if (floor !== undefined) return structuredClone(floor)
   const biz = bizRequest(method, path) ?? notifyRequest(method, path, body) ?? taskRequest(method, path, body) ?? projectRequest(method, path, body) ?? budgetRequest(method, path, body) ?? historyRequest(method, path)

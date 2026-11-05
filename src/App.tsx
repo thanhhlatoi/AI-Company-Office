@@ -34,6 +34,7 @@ const ModelComparePage = lazy(() => import('./pages/ModelComparePage'))
 const CreditsPage = lazy(() => import('./pages/CreditsPage'))
 const FloorPage = lazy(() => import('./pages/FloorPage'))
 const SecretsPage = lazy(() => import('./pages/SecretsPage'))
+const SettingsAiPage = lazy(() => import('./pages/SettingsAiPage'))
 const SpritesPage = import.meta.env.DEV ? lazy(() => import('./features/sprites/SpritesPage.tsx')) : null
 const ActorsPage = import.meta.env.DEV ? lazy(() => import('./features/sprites/ActorsPage.tsx')) : null
 import { setNavigator } from './lib/navigation'
@@ -84,6 +85,7 @@ export default function App() {
         <Route path="/models" element={<ModelsPage />} />
         <Route path="/models/compare" element={<ModelComparePage />} />
         <Route path="/settings/secrets" element={<SecretsPage />} />
+        <Route path="/settings/ai" element={<SettingsAiPage />} />
         <Route path="/agents/:id/studio" element={<AgentStudioPage />} />
         <Route path="/agents/:id" element={<AgentRedirect />} />
         <Route path="*" element={<NotFoundPage />} />

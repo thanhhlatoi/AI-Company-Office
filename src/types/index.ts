@@ -60,6 +60,8 @@ export const AgentSchema = z.object({
   isHead: z.boolean().default(false),
   // Máy mà agent đang chạy trên đó (xem Device). Máy OFFLINE -> agent hiện "Mất máy chủ".
   runsOnDeviceId: Id.nullable().default(null),
+  // Kỹ năng: nhãn tự do (GIẢ ĐỊNH, xem docs/MISSING_API.md mục L). Hermes/BE dùng để chọn agent giao việc.
+  skills: z.array(z.string()).default([]),
   // Diện mạo (màu da/tóc/áo). BE chưa có -> FE suy ra từ id (xem features/sprites/avatar.ts và docs/MISSING_API.md)
   avatar: z.object({ skin: z.string(), hair: z.string(), outfit: z.string() }).partial().nullish(),
 })
@@ -72,6 +74,7 @@ export const AgentInputSchema = z.object({
   model: z.string().min(1),
   color: z.string(),
   departmentId: z.string().nullish(),
+  skills: z.array(z.string().max(30)).max(12).default([]),
 })
 export type AgentInput = z.infer<typeof AgentInputSchema>
 
