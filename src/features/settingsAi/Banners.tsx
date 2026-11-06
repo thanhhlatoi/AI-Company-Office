@@ -14,7 +14,7 @@ export function Banners({ s }: { s: SettingsAi }) {
   return (
     <div className="space-y-2">
       {s.authEnabled !== true && <Banner tone="warn" icon={<AlertTriangle size={16} />}><strong>Chưa có đăng nhập:</strong> chỉ dùng trong mạng LAN tin cậy.</Banner>}
-      {s.source === 'env' && <Banner tone="info" icon={<Lock size={16} />}>Cấu hình đang lấy từ tệp <code>.env</code>/<code>application.yml</code> của BE, chỉ xem được. Sửa ở máy chủ rồi khởi động lại BE.</Banner>}
+      {s.source === 'env' && <Banner tone="info" icon={<Lock size={16} />}>Cấu hình đang lấy từ tệp <code>.env</code>/<code>application.yml</code> của BE, chỉ xem được. Sửa ở máy chủ rồi khởi động lại BE, hoặc đặt <code>OWNER_TOKEN</code> và <code>AGENTOFFICE_MASTER_KEY</code> trong <code>.env</code> để sửa ngay từ giao diện.</Banner>}
       {restart && <Banner tone="warn" icon={<RotateCw size={16} />}>Đã lưu. Cần khởi động lại BE để có hiệu lực.</Banner>}
       {s.llm.provider === 'fake' && <Banner tone="warn" icon={<Info size={16} />}>Đang dùng <strong>AI GIẢ</strong>, hệ thống trả lời mẫu, không gọi AI thật.</Banner>}
     </div>

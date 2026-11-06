@@ -1,4 +1,5 @@
 import { mockDb, mockTask, newId } from './db'
+import { departmentCrud } from './departments'
 import { deviceRequest } from './devices'
 import { taskRequest } from './biz/move'
 import { historyRequest } from './biz/history'
@@ -16,7 +17,8 @@ import type { Agent, AgentInput, Task } from '../types'
 /** Giả lập server REST: nhận (method, path, body), trả JSON thuần như BE thật. */
 export async function mockRequest(method: string, path: string, body: unknown): Promise<unknown> {
   await new Promise((r) => setTimeout(r, 150)) // độ trễ mạng giả
-  if (path === '/departments') return structuredClone(mockDb.departments)
+  const depCrud = departmentCrud(method, path, body)
+  if (depCrud !== undefined) return structuredClone(depCrud)
   if (path.startsWith('/settings/ai')) { const r = await settingsAiRequest(method, path, body); if (r !== undefined) return structuredClone(r) }
   const floor = floorRequest(method, path)
   if (floor !== undefined) return structuredClone(floor)

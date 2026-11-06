@@ -45,7 +45,7 @@ export function buildNav(layout: OfficeLayout, agents: Record<string, Agent>, de
 
     // đồ trang trí
     const slug = id === COMMON_ID ? 'khu-chung' : departments[id]?.slug ?? ''
-    for (const fp of propFootprints(roomProps(slug), r.w)) {
+    for (const fp of propFootprints(roomProps(slug, departments[id]?.props), r.w)) {
       const x = r.x + fp.x, y = r.y + fp.y
       if (fp.kind === 'meeting-table' || fp.kind === 'meeting-table-large') {
         // Bàn họp ở Khu chung: chỉ cản mặt bàn (chừa lề một ô) để ghế xung quanh đi tới được.

@@ -1,4 +1,4 @@
-import { Plus, Target, X } from 'lucide-react'
+import { Pencil, Plus, Target, Trash2, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Avatar } from '../../components/Avatar'
@@ -6,6 +6,7 @@ import { CountUp } from '../../components/CountUp'
 import { DepartmentIcon } from '../../components/DepartmentIcon'
 import { PANEL_CLASS } from '../../components/panelStyles'
 import { StatusBadge } from '../../components/StatusBadge'
+import { TwoStepConfirm } from '../../components/studio/TwoStepConfirm'
 import { formatDateTime } from '../../lib/time'
 import { useAgentStore } from '../../store/agentStore'
 import { useRealtimeStore } from '../../store/realtimeStore'
@@ -13,8 +14,9 @@ import { statsOf, useAgentsByDepartment } from '../../store/selectors'
 import { useUiStore } from '../../store/uiStore'
 import { paletteFor } from '../../styles/tokens'
 import type { Department } from '../../types'
+import { errorText } from './DepartmentFormModal'
 import { GoalForm } from './GoalForm'
-import { useDepartmentKpi } from './hooks'
+import { useDeleteDepartment, useDepartmentKpi } from './hooks'
 
 function Kpi({ label, value, decimals = 0, prefix = '', tone }: { label: string; value: number; decimals?: number; prefix?: string; tone?: string }) {
   return (
@@ -30,6 +32,9 @@ export function DepartmentPanel({ department, onClose }: { department: Departmen
   const navigate = useNavigate()
   const openForm = useUiStore((s) => s.openForm)
   const [goalOpen, setGoalOpen] = useState(false)
+  const [confirmDel, setConfirmDel] = useState(false)
+  const del = useDeleteDepartment()
+  const toast = useUiStore((s) => s.toast)
   const byDept = useAgentsByDepartment()
   const members = useMemo(() => byDept[department.id] ?? [], [byDept, department.id])
   const stats = statsOf(members)
@@ -79,6 +84,12 @@ export function DepartmentPanel({ department, onClose }: { department: Departmen
               <Target size={14} /> Giao mục tiêu cho phòng
             </button>
           )}
+          <button onClick={() => useUiStore.getState().openDeptForm(department.id)} aria-label="Sửa phòng ban" className="flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50">
+            <Pencil size={14} /> Sửa phòng
+          </button>
+          <button onClick={() => setConfirmDel(true)} aria-label="Xoá phòng ban" className="flex items-center gap-1 rounded-lg border border-red-300 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50">
+            <Trash2 size={14} /> Xoá phòng
+          </button>
         </div>
         {goalOpen && head && <GoalForm departmentId={department.id} />}
 
@@ -113,6 +124,17 @@ export function DepartmentPanel({ department, onClose }: { department: Departmen
             )}
         </section>
       </div>
+      {confirmDel && (
+        <TwoStepConfirm
+          title={`Xoá phòng ${department.name}?`} askReason={false} confirmLabel="Xoá phòng" busy={del.isPending}
+          preview={<p className="text-sm">Phòng <b>{department.name}</b> sẽ bị xoá. {members.length > 0 ? <>{members.length} agent trong phòng <b>không bị xoá</b>, họ chuyển sang "Chưa phân phòng" (trưởng phòng mất chức vụ). </> : null}Bạn có thể gán lại agent vào phòng khác sau.</p>}
+          onClose={() => setConfirmDel(false)}
+          onConfirm={() => del.mutate(department.id, {
+            onSuccess: () => { setConfirmDel(false); toast('Đã xoá phòng ban'); navigate('/company') },
+            onError: (e) => { setConfirmDel(false); toast(errorText(e, 'Xoá phòng thất bại'), 'error') },
+          })}
+        />
+      )}
     </aside>
   )
 }

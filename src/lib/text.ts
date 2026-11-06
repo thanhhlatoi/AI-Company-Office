@@ -1,6 +1,9 @@
 /** Bỏ dấu tiếng Việt + chữ thường: "Kế toán" -> "ke toan". Dùng cho tìm kiếm không dấu. */
 export const foldVi = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').replace(/đ/g, 'd').replace(/Đ/g, 'd').toLowerCase()
 
+/** "Nhân sự & Tuyển dụng" -> "nhan-su-tuyen-dung" (dùng làm slug trên URL). */
+export const slugify = (s: string) => foldVi(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+
 /** Tách `text` thành các đoạn khớp / không khớp `query` (không dấu, không phân biệt hoa thường). Chữ gốc được giữ nguyên. */
 export function splitMatches(text: string, query: string): { text: string; hit: boolean }[] {
   const n = foldVi(query.trim())

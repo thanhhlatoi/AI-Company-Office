@@ -1,8 +1,9 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
-import { createGoal, getDepartmentStats, listDepartments } from '../../api/departments'
+import { createDepartment, createGoal, deleteDepartment, getDepartmentStats, listDepartments, updateDepartment } from '../../api/departments'
 import { isDepartmentEnabled } from '../../config/departments'
 import { useDepartmentStore } from '../../store/departmentStore'
+import type { DepartmentInput } from '../../types'
 
 export const useDepartmentsQuery = () => useQuery({ queryKey: ['departments'], queryFn: listDepartments })
 
@@ -18,3 +19,23 @@ export function useDepartmentsSync() {
 export const useDepartmentKpi = (id: string) => useQuery({ queryKey: ['dept-stats', id], queryFn: () => getDepartmentStats(id) })
 
 export const useAssignGoal = (id: string) => useMutation({ mutationFn: (goal: string) => createGoal(id, goal) })
+
+/** Sau khi đổi phòng: tải lại phòng, agent (đổi phòng / trưởng phòng) và các tầng. */
+function useRefreshDepartments() {
+  const qc = useQueryClient()
+  return () => Promise.all(['departments', 'agents', 'floors', 'dept-stats'].map((k) => qc.invalidateQueries({ queryKey: [k] })))
+}
+
+/** Tạo (không có id) hoặc sửa (có id) phòng ban. */
+export function useSaveDepartment() {
+  const refresh = useRefreshDepartments()
+  return useMutation({
+    mutationFn: ({ id, input }: { id?: string; input: DepartmentInput }) => (id ? updateDepartment(id, input) : createDepartment(input)),
+    onSuccess: refresh,
+  })
+}
+
+export function useDeleteDepartment() {
+  const refresh = useRefreshDepartments()
+  return useMutation({ mutationFn: deleteDepartment, onSuccess: refresh })
+}

@@ -8,6 +8,10 @@ export type StatusFilter = 'all' | 'WORKING' | 'ERROR'
 
 interface UiState {
   form: { open: boolean; editId: string | null; departmentId: string | null }
+  /** Form tạo / sửa phòng ban; editId = id phòng đang sửa (null = tạo mới) */
+  deptForm: { open: boolean; editId: string | null }
+  openDeptForm: (editId?: string) => void
+  closeDeptForm: () => void
   /** Hộp thư phê duyệt (ngăn phải). `focusId` = yêu cầu cần cuộn tới và tô nổi. */
   inbox: { open: boolean; focusId: string | null }
   /** Ngăn "Thông báo" (chuông thông tin) */
@@ -45,6 +49,9 @@ interface UiState {
 
 export const useUiStore = create<UiState>((set) => ({
   form: { open: false, editId: null, departmentId: null },
+  deptForm: { open: false, editId: null },
+  openDeptForm: (editId) => set({ deptForm: { open: true, editId: editId ?? null } }),
+  closeDeptForm: () => set({ deptForm: { open: false, editId: null } }),
   inbox: { open: false, focusId: null },
   composer: { open: false, departmentId: null },
   openComposer: (departmentId) => set({ composer: { open: true, departmentId: departmentId ?? null } }),

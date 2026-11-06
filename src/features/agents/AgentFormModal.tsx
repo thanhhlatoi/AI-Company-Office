@@ -1,15 +1,18 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { Modal } from '../../components/Modal'
-import { AGENT_MODELS } from '../../lib/config'
+import { LOCAL_MODELS } from '../../lib/config'
 import { MAX_SKILLS, MAX_SKILL_LEN, parseSkills } from '../../lib/skills'
 import { useAgentStore } from '../../store/agentStore'
 import { useDepartmentStore } from '../../store/departmentStore'
 import { useUiStore } from '../../store/uiStore'
 import { AgentInputSchema, type AgentInput } from '../../types'
+import { useLocalModelIds } from '../models/useLocalModels'
 import { useSaveAgent } from './hooks'
 
 type Errors = Partial<Record<keyof AgentInput, string>>
-const EMPTY: AgentInput = { name: '', role: '', systemPrompt: '', model: AGENT_MODELS[0], color: '#2563eb', skills: [] }
+const EMPTY: AgentInput = { name: '', role: '', systemPrompt: '', model: LOCAL_MODELS[0], color: '#2563eb', skills: [] }
+/** Chỉ model bot chạy được; giữ cả giá trị hiện có của agent (vd local.small) để không bị đổi âm thầm. */
+const modelOptions = (local: readonly string[], current: string) => [...new Set([...local, current].filter(Boolean))]
 const input = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand focus:outline-none'
 
 export function AgentFormModal() {
@@ -27,6 +30,7 @@ function Form({ editId, presetDepartmentId }: { editId: string | null; presetDep
   const departments = useMemo(() => Object.values(departmentsById).sort((a, b) => a.order - b.order), [departmentsById])
   const focusId = useUiStore((s) => s.focusDepartmentId)
   const save = useSaveAgent()
+  const localModels = useLocalModelIds()
   // Agent mới mặc định vào phòng được chỉ định, nếu không thì phòng đang xem
   const [values, setValues] = useState<AgentInput>(editing ?? { ...EMPTY, departmentId: presetDepartmentId ?? focusId ?? '' })
   const [skillsText, setSkillsText] = useState((editing?.skills ?? []).join(', '))
@@ -67,7 +71,7 @@ function Form({ editId, presetDepartmentId }: { editId: string | null; presetDep
         {field('systemPrompt', 'System prompt', <textarea rows={6} className={input} value={values.systemPrompt} onChange={set('systemPrompt')} />)}
         {field('model', 'Model', (
           <select className={input} value={values.model} onChange={set('model')}>
-            {AGENT_MODELS.map((m) => <option key={m}>{m}</option>)}
+            {modelOptions(localModels, values.model).map((m) => <option key={m}>{m}</option>)}
           </select>
         ))}
         {field('departmentId', 'Phòng ban', (
@@ -76,10 +80,10 @@ function Form({ editId, presetDepartmentId }: { editId: string | null; presetDep
             {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
           </select>
         ))}
-        {field('skills', 'Kỹ năng', (
+        {field('skills', 'Nhãn chuyên môn', (
           <>
             <input className={input} value={skillsText} onChange={(e) => setSkillsText(e.target.value)} placeholder="viết kịch bản, tiếng Việt, dịch EN" />
-            <span className="mt-1 block text-xs text-slate-600">Cách nhau bằng dấu phẩy. Tối đa {MAX_SKILLS} kỹ năng, mỗi cái {MAX_SKILL_LEN} ký tự (phần dư bị cắt). Hermes dùng để chọn agent giao việc.</span>
+            <span className="mt-1 block text-xs text-slate-600">Cách nhau bằng dấu phẩy. Tối đa {MAX_SKILLS} nhãn, mỗi nhãn {MAX_SKILL_LEN} ký tự (phần dư bị cắt). Dùng để chọn agent giao việc, không phải skill của bot (skill thật ở tab Skill).</span>
           </>
         ))}
         {field('color', 'Màu áo', <input type="color" className="h-9 w-16 cursor-pointer" value={values.color} onChange={set('color')} />)}

@@ -4,6 +4,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { Avatar } from '../components/Avatar'
 import { CapabilityPanel } from '../features/studio/CapabilityPanel'
 import { DataTab } from '../features/studio/DataTab'
+import { HermesBotTab } from '../features/studio/HermesBotTab'
 import { ModelTab } from '../features/studio/ModelTab'
 import { PromptEditor } from '../features/studio/PromptEditor'
 import { PromptVersions } from '../features/studio/PromptVersions'
@@ -13,10 +14,11 @@ import { ToolLogTab } from '../features/studio/ToolLogTab'
 import { ToolsTab } from '../features/studio/ToolsTab'
 import type { EffectivePermissions } from '../types/tools'
 import { useAgentsQuery } from '../features/agents/hooks'
+import { USE_MOCK } from '../lib/config'
 import { useAgentStore } from '../store/agentStore'
 
 const TABS = [
-  ['profile', 'Hồ sơ và prompt'], ['model', 'Model'], ['tools', 'Công cụ và quyền'], ['data', 'Dữ liệu'], ['budget', 'Ngân sách'], ['log', 'Nhật ký công cụ'],
+  ['profile', 'Hồ sơ và prompt'], ['hermes', 'Bot Hermes'], ['model', 'Model'], ['tools', 'Công cụ và quyền'], ['data', 'Dữ liệu'], ['budget', 'Ngân sách'], ['log', 'Nhật ký công cụ'],
 ] as const
 type Tab = (typeof TABS)[number][0]
 const isTab = (s: string | null): s is Tab => TABS.some(([k]) => k === s)
@@ -27,7 +29,8 @@ export default function AgentStudioPage() {
   const { isLoading } = useAgentsQuery()
   const agent = useAgentStore((s) => s.agentsById[id])
   const [preview, setPreview] = useState<EffectivePermissions | undefined>()
-  const raw = sp.get('tab'), tab: Tab = isTab(raw) ? raw : 'profile'
+  // Chạy với BE thật thì mở thẳng tab Bot Hermes (cấu hình thật); tab Hồ sơ còn phần lịch sử prompt/quyền là mock.
+  const raw = sp.get('tab'), tab: Tab = isTab(raw) ? raw : USE_MOCK ? 'profile' : 'hermes'
   if (!agent) {
     return isLoading
       ? <div className="space-y-2 p-6">{[0, 1, 2].map((i) => <div key={i} className="h-12 animate-pulse rounded-card bg-slate-200" />)}</div>
@@ -49,11 +52,12 @@ export default function AgentStudioPage() {
         </div>
         <div id="studio-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} className="min-w-0 space-y-5">
           {tab === 'profile' && <><TemplateDrift agent={agent} /><ProfileForm key={agent.id} agent={agent} /><PromptEditor key={agent.systemPrompt} agent={agent} /><PromptVersions agentId={agent.id} /></>}
+          {tab === 'hermes' && <HermesBotTab agent={agent} />}
           {tab === 'model' && <ModelTab agent={agent} />}
           {tab === 'tools' && <ToolsTab agent={agent} onPreview={setPreview} />}
           {tab === 'log' && <ToolLogTab agent={agent} />}
           {tab === 'data' && <DataTab agent={agent} />}
-          {tab !== 'profile' && tab !== 'model' && tab !== 'tools' && tab !== 'log' && tab !== 'data' && <p className="rounded-card border border-dashed border-slate-300 p-6 text-center text-sm text-slate-700">Mục “{TABS.find(([k]) => k === tab)?.[1]}” chưa có ở bước này.</p>}
+          {tab !== 'profile' && tab !== 'hermes' && tab !== 'model' && tab !== 'tools' && tab !== 'log' && tab !== 'data' && <p className="rounded-card border border-dashed border-slate-300 p-6 text-center text-sm text-slate-700">Mục “{TABS.find(([k]) => k === tab)?.[1]}” chưa có ở bước này.</p>}
         </div>
         <div className="min-w-0 rounded-card border border-slate-200 bg-white p-3 lg:sticky lg:top-0 lg:self-start"><CapabilityPanel agent={agent} preview={tab === 'tools' ? preview : undefined} /></div>
       </div>

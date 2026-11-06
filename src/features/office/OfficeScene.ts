@@ -1,5 +1,5 @@
 import { Application, Container, Graphics } from 'pixi.js'
-import { INFRA_SLUG, departmentConfig } from '../../config/departments'
+import { INFRA_SLUG, monitorsOf } from '../../config/departments'
 import { motionQuery } from '../../lib/motion'
 import { useAgentStore } from '../../store/agentStore'
 import { useDepartmentStore } from '../../store/departmentStore'
@@ -339,7 +339,7 @@ export class OfficeScene {
       const dept = a.departmentId ? useDepartmentStore.getState().departmentsById[a.departmentId] : undefined
       actor.update(a, {
         accent: dept?.color ?? ORPHAN_DEPARTMENT.color,
-        monitors: (dept && departmentConfig(dept.slug)?.monitorsPerDesk) || 1,
+        monitors: dept ? monitorsOf(dept.slug, dept.monitorsPerDesk) : 1,
         hostLost,
         budgetBlocked: isBlockedAgent(useBudgetStore.getState().blocked, a.id),
         modelTag: modelTagOf(useModelStore.getState().key, a.id),

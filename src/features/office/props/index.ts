@@ -1,4 +1,4 @@
-import type { PropKind } from '../../../config/departments'
+import { PROP_INFO, PROP_KINDS, type PropKind, type PropSlot } from '../../../config/departments'
 import { cashRegister, chartWall, filingCabinet, safe } from './Finance'
 import { coffeeMachine, approvalCorner } from './Common'
 import { goalBoard, meetingTable, plant } from './Executive'
@@ -11,36 +11,37 @@ import { serverRack } from './ServerRack'
 import { ideaBoard, microphone, ringLight, timelineScreen } from './Youtube'
 
 // Ô đặt đồ trong phòng (toạ độ tương đối so với phòng). Tránh vùng biển tên (y < 80 ở giữa),
-// khu bàn trưởng phòng ở giữa và thảm nhân viên (từ y ~340).
-type Slot = 'wall-left' | 'wall-right' | 'upper-left' | 'upper-right' | 'side-left' | 'side-right' | 'low-right' | 'common-left' | 'common-mid' | 'common-right'
+// khu bàn trưởng phòng ở giữa và thảm nhân viên (từ y ~340). Ô của từng loại đồ khai báo ở config/departments.ts (PROP_INFO).
+type Slot = PropSlot
 
 // Record<PropKind, ...> bắt buộc phải có hàm vẽ cho mọi prop khai báo trong config.
-const REGISTRY: Record<PropKind, { make: () => Prop; slot: Slot }> = {
-  plant: { make: plant, slot: 'wall-left' },
-  'goal-board': { make: goalBoard, slot: 'wall-right' },
-  'meeting-table': { make: () => meetingTable('meeting-table'), slot: 'low-right' },
-  'meeting-table-large': { make: () => meetingTable('meeting-table-large'), slot: 'common-left' },
-  'coffee-machine': { make: coffeeMachine, slot: 'common-mid' },
-  'approval-corner': { make: approvalCorner, slot: 'common-right' },
-  'idea-board': { make: ideaBoard, slot: 'wall-left' },
-  'timeline-screen': { make: timelineScreen, slot: 'wall-right' },
-  'ring-light': { make: ringLight, slot: 'side-left' },
-  microphone: { make: microphone, slot: 'side-right' },
-  'neon-sign': { make: neonSign, slot: 'upper-left' },
-  'phone-stand': { make: phoneStand, slot: 'side-left' },
-  'poster-wall': { make: posterWall, slot: 'side-right' },
-  whiteboard: { make: whiteboard, slot: 'wall-left' },
-  'server-rack': { make: serverRack, slot: 'wall-right' },
-  'cash-register': { make: cashRegister, slot: 'upper-left' },
-  'filing-cabinet': { make: filingCabinet, slot: 'side-left' },
-  'chart-wall': { make: chartWall, slot: 'upper-right' },
-  safe: { make: safe, slot: 'side-right' },
-  'growth-chart': { make: growthChart, slot: 'wall-left' },
-  'delivery-map': { make: deliveryMap, slot: 'wall-right' },
-  'network-board': { make: networkBoard, slot: 'wall-left' },
-  ups: { make: ups, slot: 'side-left' },
-  'temp-gauge': { make: tempGauge, slot: 'side-right' },
+const MAKERS: Record<PropKind, () => Prop> = {
+  plant: plant,
+  'goal-board': goalBoard,
+  'meeting-table': () => meetingTable('meeting-table'),
+  'meeting-table-large': () => meetingTable('meeting-table-large'),
+  'coffee-machine': coffeeMachine,
+  'approval-corner': approvalCorner,
+  'idea-board': ideaBoard,
+  'timeline-screen': timelineScreen,
+  'ring-light': ringLight,
+  microphone: microphone,
+  'neon-sign': neonSign,
+  'phone-stand': phoneStand,
+  'poster-wall': posterWall,
+  whiteboard: whiteboard,
+  'server-rack': serverRack,
+  'cash-register': cashRegister,
+  'filing-cabinet': filingCabinet,
+  'chart-wall': chartWall,
+  safe: safe,
+  'growth-chart': growthChart,
+  'delivery-map': deliveryMap,
+  'network-board': networkBoard,
+  ups: ups,
+  'temp-gauge': tempGauge,
 }
+const REGISTRY = Object.fromEntries(PROP_KINDS.map((k) => [k, { make: MAKERS[k], slot: PROP_INFO[k].slot }])) as Record<PropKind, { make: () => Prop; slot: Slot }>
 
 function position(slot: Slot, roomW: number, propW: number): [number, number] {
   switch (slot) {

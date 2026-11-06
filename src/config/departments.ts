@@ -14,6 +14,48 @@ export type PropKind =
   | 'growth-chart' | 'delivery-map'
   | 'network-board' | 'ups' | 'temp-gauge'
 
+/** Ô đặt đồ trong phòng (xem features/office/props/index.ts). Mỗi ô chỉ đặt được một món. */
+export type PropSlot = 'wall-left' | 'wall-right' | 'upper-left' | 'upper-right' | 'side-left' | 'side-right' | 'low-right' | 'common-left' | 'common-mid' | 'common-right'
+
+/** Ô của từng loại đồ + tên hiển thị: nguồn duy nhất cho cả bộ vẽ lẫn form tuỳ chỉnh phòng trên web. */
+export const PROP_INFO: Record<PropKind, { slot: PropSlot; label: string }> = {
+  plant: { slot: 'wall-left', label: 'Cây cảnh' },
+  'goal-board': { slot: 'wall-right', label: 'Bảng mục tiêu' },
+  'meeting-table': { slot: 'low-right', label: 'Bàn họp' },
+  'meeting-table-large': { slot: 'common-left', label: 'Bàn họp lớn' },
+  'coffee-machine': { slot: 'common-mid', label: 'Máy cà phê' },
+  'approval-corner': { slot: 'common-right', label: 'Góc chờ duyệt' },
+  'idea-board': { slot: 'wall-left', label: 'Bảng ý tưởng' },
+  'timeline-screen': { slot: 'wall-right', label: 'Màn hình timeline' },
+  'ring-light': { slot: 'side-left', label: 'Đèn ring' },
+  microphone: { slot: 'side-right', label: 'Micro' },
+  'neon-sign': { slot: 'upper-left', label: 'Biển neon' },
+  'phone-stand': { slot: 'side-left', label: 'Giá đỡ điện thoại' },
+  'poster-wall': { slot: 'side-right', label: 'Tường poster' },
+  whiteboard: { slot: 'wall-left', label: 'Bảng trắng' },
+  'server-rack': { slot: 'wall-right', label: 'Tủ máy chủ' },
+  'cash-register': { slot: 'upper-left', label: 'Máy tính tiền' },
+  'filing-cabinet': { slot: 'side-left', label: 'Tủ hồ sơ' },
+  'chart-wall': { slot: 'upper-right', label: 'Tường biểu đồ' },
+  safe: { slot: 'side-right', label: 'Két sắt' },
+  'growth-chart': { slot: 'wall-left', label: 'Biểu đồ tăng trưởng' },
+  'delivery-map': { slot: 'wall-right', label: 'Bản đồ giao hàng' },
+  'network-board': { slot: 'wall-left', label: 'Bảng mạng' },
+  ups: { slot: 'side-left', label: 'Bộ lưu điện' },
+  'temp-gauge': { slot: 'side-right', label: 'Đồng hồ nhiệt' },
+}
+export const PROP_KINDS = Object.keys(PROP_INFO) as PropKind[]
+export const isPropKind = (s: string): s is PropKind => s in PROP_INFO
+/** Ba loại chỉ dành cho Khu chung, không chọn được cho phòng ban. */
+const COMMON_ONLY: PropKind[] = ['meeting-table-large', 'coffee-machine', 'approval-corner']
+export const SELECTABLE_PROPS = PROP_KINDS.filter((k) => !COMMON_ONLY.includes(k))
+/** Các ô của phòng ban kèm tên hiển thị, theo thứ tự hiện trong form. */
+export const PROP_SLOTS: { slot: PropSlot; label: string }[] = [
+  { slot: 'wall-left', label: 'Tường trái' }, { slot: 'wall-right', label: 'Tường phải' },
+  { slot: 'upper-left', label: 'Góc trên trái' }, { slot: 'upper-right', label: 'Góc trên phải' },
+  { slot: 'side-left', label: 'Cạnh trái' }, { slot: 'side-right', label: 'Cạnh phải' }, { slot: 'low-right', label: 'Dưới phải' },
+]
+
 /** runsOn = id thiết bị (config/devices.ts) mà agent chạy trên đó. */
 export interface Member { name: string; role: string; runsOn?: string; skills?: string[] } // name = chức danh
 
@@ -125,5 +167,14 @@ export const COMMON_AREA = {
   color: '#64748b',
   props: ['meeting-table-large', 'coffee-machine', 'approval-corner'] as PropKind[],
 }
-/** Props của một phòng theo slug (phòng ban hoặc khu chung). */
-export const roomProps = (slug: string): PropKind[] => (slug === COMMON_AREA.slug ? COMMON_AREA.props : departmentConfig(slug)?.props ?? [])
+/** Slug đã dùng cho khu vực đặc biệt, phòng ban không được trùng. */
+export const RESERVED_SLUGS = [COMMON_AREA.slug, 'chua-phan-phong']
+/** Props của một phòng (phòng ban hoặc khu chung). `custom` = props lưu trên web/BE, ưu tiên hơn config theo slug. */
+export const roomProps = (slug: string, custom?: string[]): PropKind[] => {
+  if (slug === COMMON_AREA.slug) return COMMON_AREA.props
+  // BE trả [] cho phòng chưa từng chỉnh đồ (mọi phòng có sẵn): coi như "chưa đặt" và dùng bảng config theo slug
+  if (custom?.length) return custom.filter(isPropKind)
+  return departmentConfig(slug)?.props ?? []
+}
+/** Số màn hình mỗi bàn: giá trị lưu trên phòng, rồi tới config theo slug, mặc định 1. */
+export const monitorsOf = (slug: string, custom?: number) => (custom && custom > 1 ? custom : departmentConfig(slug)?.monitorsPerDesk ?? custom ?? 1)
