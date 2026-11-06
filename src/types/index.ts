@@ -86,8 +86,23 @@ export const DepartmentSchema = z.object({
   color: z.string(), // màu accent (hex)
   headAgentId: Id.nullable().default(null),
   order: z.number().default(0),
+  /** Đồ trang trí (PropKind) và số màn hình mỗi bàn; không có thì dùng config/departments.ts theo slug. */
+  props: z.array(z.string()).optional(),
+  monitorsPerDesk: z.number().optional(),
 })
 export type Department = z.infer<typeof DepartmentSchema>
+
+/** Body POST/PUT /departments. `slug` do server sinh từ tên khi tạo (không đổi khi sửa). */
+export interface DepartmentInput {
+  name: string
+  icon: string
+  color: string
+  props: string[]
+  monitorsPerDesk: number
+  /** Chỉ khi tạo: tạo luôn trưởng phòng */
+  headName?: string
+  headRole?: string
+}
 
 /** Số liệu phòng. `doneToday` là thứ FE không tự tính được; token cost tuỳ chọn (không có thì ẩn thẻ). */
 export const DepartmentStatsSchema = z.object({

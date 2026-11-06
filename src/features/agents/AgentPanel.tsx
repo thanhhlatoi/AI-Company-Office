@@ -7,8 +7,10 @@ import { AgentQueue } from '../queue/AgentQueue'
 import { GoalForm } from '../departments/GoalForm'
 import { AssignTab } from '../tasks/AssignTab'
 import { HistoryTab } from '../tasks/HistoryTab'
+import { ChannelsTab } from './ChannelsTab'
 import { EventLogTab } from './EventLogTab'
 import { OverviewTab } from './OverviewTab'
+import { SkillsTab } from './SkillsTab'
 
 const BASE_TABS = [
   ['overview', 'Tổng quan'],
@@ -16,6 +18,8 @@ const BASE_TABS = [
   ['queue', 'Hàng đợi'],
   ['history', 'Lịch sử'],
   ['conversations', 'Hội thoại'],
+  ['skills', 'Skill'],
+  ['channels', 'Kênh'],
   ['log', 'Nhật ký'],
 ] as const
 type Tab = (typeof BASE_TABS)[number][0] | 'goal'
@@ -57,6 +61,8 @@ export function AgentPanel({ onClose }: { onClose: () => void }) {
         {tab === 'queue' && <AgentQueue agentId={id} />}
         {tab === 'conversations' && <AgentConversations agentId={id} />}
         {tab === 'history' && <HistoryTab agentId={id} />}
+        {tab === 'skills' && <SkillsTab agentId={id} />}
+        {tab === 'channels' && <ChannelsTab agentId={id} />}
         {tab === 'log' && <EventLogTab agentId={id} />}
         {tab === 'goal' && agent.departmentId && <GoalForm departmentId={agent.departmentId} />}
       </div>

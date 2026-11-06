@@ -111,7 +111,7 @@ export class RoomView extends Container {
     // đồ trang trí theo config
     this.props.length = 0
     this.propLayer.removeChildren().forEach((c) => c.destroy({ children: true }))
-    for (const prop of placeProps(roomProps(dept.slug), w)) {
+    for (const prop of placeProps(roomProps(dept.slug, dept.props), w)) {
       this.props.push(prop)
       this.propLayer.addChild(prop.view)
     }

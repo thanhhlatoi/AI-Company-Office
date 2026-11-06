@@ -1,4 +1,4 @@
-import { Pencil, Settings2, Trash2 } from 'lucide-react'
+import { Bot, Pencil, Settings2, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Avatar } from '../../components/Avatar'
 import { Modal } from '../../components/Modal'
@@ -63,6 +63,9 @@ export function OverviewTab({ agent, onDeleted }: { agent: Agent; onDeleted: () 
       <div className="flex gap-2">
         <button onClick={() => navigate(`/agents/${agent.id}/studio`)} className="flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50">
           <Settings2 size={14} /> Cấu hình
+        </button>
+        <button onClick={() => navigate(`/agents/${agent.id}/studio?tab=hermes`)} aria-label="Cấu hình bot Hermes" className="flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50">
+          <Bot size={14} /> Bot Hermes
         </button>
         <button aria-label="Sửa agent" onClick={() => openForm(agent.id)} className="flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50">
           <Pencil size={14} /> Sửa

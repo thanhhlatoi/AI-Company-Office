@@ -1,4 +1,4 @@
-import { Building2, ChevronsLeft, ChevronsRight, TriangleAlert } from 'lucide-react'
+import { Building2, ChevronsLeft, ChevronsRight, Plus, TriangleAlert } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { DepartmentIcon } from '../../components/DepartmentIcon'
@@ -61,6 +61,15 @@ export function Sidebar() {
             dot={d.color} working={s.working} total={s.total} error={s.error} collapsed={collapsed} alert={d.slug === INFRA_SLUG ? alertCount : 0} />
         )
       })}
+      <button
+        onClick={() => useUiStore.getState().openDeptForm()}
+        aria-label="Tạo phòng ban"
+        title="Tạo phòng ban"
+        className="flex items-center gap-3 rounded-card px-3 py-2 text-sm text-brand-dark hover:bg-brand/10 focus-visible:outline-2 focus-visible:outline-brand"
+      >
+        <Plus size={20} className="shrink-0" aria-hidden="true" />
+        <span className={collapsed ? 'hidden' : 'hidden lg:inline'}>Tạo phòng ban</span>
+      </button>
       <button
         onClick={toggle}
         aria-label={collapsed ? 'Mở rộng thanh bên' : 'Thu gọn thanh bên'}

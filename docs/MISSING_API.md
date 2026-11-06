@@ -16,6 +16,17 @@ Quy ước: `id` có thể là số hoặc chuỗi (FE chuẩn hoá về chuỗi
 - `color`: màu accent hex. FE tự suy ra màu sàn/tường nếu không có trong bảng màu sẵn.
 - `order`: thứ tự hiển thị / phím tắt 1-6.
 
+### A1b. Tạo / sửa / xoá phòng ban (giao diện "Tạo phòng ban", "Sửa phòng", "Xoá phòng")
+`Department` (A1) thêm 2 field tuỳ chọn: `"props": ["whiteboard","plant"]` (đồ trang trí; danh sách giá trị hợp lệ: `PROP_INFO` trong
+`src/config/departments.ts`, mỗi ô chỉ 1 món) và `"monitorsPerDesk": 1` (1-3). Không có thì FE dùng bảng cấu hình theo `slug`.
+- `POST /departments` body `{ name, icon, color, props, monitorsPerDesk, headName?, headRole? }` -> `Department`.
+  `name` 2-40 ký tự, `color` dạng `#rrggbb`. BE tự sinh `slug` từ tên (bỏ dấu, nối bằng `-`, trùng thì thêm `-2`),
+  `order` = lớn nhất + 1. Có `headName` thì tạo luôn agent trưởng phòng (`isHead=true`) và điền `headAgentId`.
+- `PUT /departments/{id}` cùng body (bỏ `headName/headRole`) -> `Department`. `slug` KHÔNG đổi.
+- `DELETE /departments/{id}` -> 204. Agent trong phòng KHÔNG bị xoá: `departmentId=null`, `isHead=false`.
+  Phòng Hạ tầng (`ha-tang`, gắn khu thiết bị) trả 409 `{message}`.
+- Lỗi: 400/409 kèm `{ "message": "..." }` (FE hiện thẳng message này). Mock tham chiếu: `src/mocks/departments.ts`.
+
 ### A2. `Agent` thêm 2 field (trong mọi response/ message có Agent)
 - `departmentId`: id phòng (null nếu chưa thuộc phòng nào).
 - `isHead`: `true` nếu là trưởng phòng (khớp `Department.headAgentId`).

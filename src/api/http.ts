@@ -1,5 +1,7 @@
 import type { z } from 'zod'
-import { API_BASE_URL, USE_MOCK } from '../lib/config'
+import { API_BASE_URL, API_KEY, HYBRID, USE_MOCK } from '../lib/config'
+import { authHeaders, getOwnerToken, needsOwnerToken, setOwnerToken } from '../lib/ownerToken'
+import { isBackedByBe } from './beRoutes'
 import { mockRequest } from '../mocks/mockApi'
 
 export class ApiError extends Error {
@@ -33,19 +35,23 @@ export async function request<T>(
   signal?: AbortSignal,
 ): Promise<T> {
   let json: unknown
-  if (USE_MOCK) {
+  if (USE_MOCK || (HYBRID && !isBackedByBe(method, path))) {
     json = await new Promise((resolve, reject) => {
       if (signal?.aborted) return reject(new DOMException('Aborted', 'AbortError'))
       signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')), { once: true })
       mockRequest(method, path, body).then(resolve, reject)
     })
   } else {
+    // Mã chủ chỉ đi kèm request tới /settings/ai (xem lib/ownerToken.ts); các request khác không bao giờ mang nó
+    const headers = { ...(API_KEY ? { 'X-Api-Key': API_KEY } : {}), ...(body === undefined ? {} : { 'Content-Type': 'application/json' }), ...authHeaders(path, getOwnerToken()) }
     const res = await fetch(`${API_BASE_URL}${path}`, {
       method,
-      headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
+      headers: Object.keys(headers).length ? headers : undefined,
       body: body === undefined ? undefined : JSON.stringify(body),
       signal,
     })
+    // Mã sai/hết hiệu lực: xoá để giao diện hỏi lại, không giữ mãi một mã chắc chắn bị từ chối
+    if (res.status === 401 && needsOwnerToken(path)) setOwnerToken(null)
     if (!res.ok) throw new ApiError(res.status, `${method} ${path} -> HTTP ${res.status}`, await res.json().catch(() => null))
     const text = await res.text()
     json = text ? JSON.parse(text) : null

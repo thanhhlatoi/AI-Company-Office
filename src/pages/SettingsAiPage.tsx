@@ -8,6 +8,7 @@ import { GraphifyTab } from '../features/settingsAi/GraphifyTab'
 import { HermesTab } from '../features/settingsAi/HermesTab'
 import { OllamaTab } from '../features/settingsAi/OllamaTab'
 import { OmniRouteTab } from '../features/settingsAi/OmniRouteTab'
+import { OwnerTokenBar } from '../features/settingsAi/OwnerTokenBar'
 import { OverviewTab } from '../features/settingsAi/OverviewTab'
 import { RoutingTab } from '../features/settingsAi/RoutingTab'
 import { SaveBar } from '../features/settingsAi/SaveBar'
@@ -40,6 +41,7 @@ function Body({ s }: { s: SettingsAi }) {
   return (
     <>
       <Banners s={s} />
+      <OwnerTokenBar s={s} />
       <div role="tablist" aria-label="Mục cài đặt AI" className="flex flex-col gap-1 border-slate-200 sm:flex-row sm:border-b">
         {TABS.map((t, i) => (
           <button

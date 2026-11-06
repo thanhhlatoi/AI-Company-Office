@@ -8,6 +8,7 @@ import { AgentPanel } from '../features/agents/AgentPanel'
 import { useAgentsQuery } from '../features/agents/hooks'
 import { TopBar } from '../features/dashboard/TopBar'
 import { CommandPalette } from '../features/dashboard/CommandPalette'
+import { DepartmentFormModal } from '../features/departments/DepartmentFormModal'
 import { DepartmentPanel } from '../features/departments/DepartmentPanel'
 import { Sidebar } from '../features/departments/Sidebar'
 import { useRouteView } from '../features/office/useRouteView'
@@ -105,6 +106,7 @@ export default function AppLayout() {
         {onOffice && !notifOpen && !inboxOpen && !deviceId && !selectedId && deptPanelOpen && dept && <DepartmentPanel key={dept.id} department={dept} onClose={() => useUiStore.getState().setDeptPanel(false)} />}
       </div>
       <AgentFormModal />
+      <DepartmentFormModal />
       <ShortcutsDialog />
       {composerOpen && <GoalComposer />}
       <button onClick={() => useUiStore.getState().openComposer()} aria-label="Mục tiêu mới (phím G)"

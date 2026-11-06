@@ -1,7 +1,7 @@
 import { X } from 'lucide-react'
 import { useEffect, type ReactNode } from 'react'
 
-export function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+export function Modal({ title, onClose, children, wide = false }: { title: string; onClose: () => void; children: ReactNode; wide?: boolean }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
@@ -13,7 +13,7 @@ export function Modal({ title, onClose, children }: { title: string; onClose: ()
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="max-h-full w-full max-w-lg overflow-y-auto rounded-card bg-white p-5 shadow-xl"
+        className={`max-h-full w-full ${wide ? 'max-w-3xl' : 'max-w-lg'} overflow-y-auto rounded-card bg-white p-5 shadow-xl`}
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">

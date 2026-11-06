@@ -3,7 +3,7 @@ import { RiskChip } from '../../../components/studio/badges'
 import type { AgentTemplate } from '../../../types/studio'
 import type { Secret, Tool } from '../../../types/tools'
 import { isHighRisk } from '../../studio/risk'
-import { SchemaForm } from '../../studio/SchemaForm'
+import { SchemaForm } from '../../studio/SchemaFormView'
 import { validateScope } from '../../studio/schemaForm'
 import type { Draft } from '../wizardLogic'
 

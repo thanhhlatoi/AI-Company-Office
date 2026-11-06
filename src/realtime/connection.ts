@@ -1,6 +1,6 @@
 import { Client, ReconnectionTimeMode } from '@stomp/stompjs'
 import type { QueryClient } from '@tanstack/react-query'
-import { STOMP_AGENTS_TOPIC, USE_MOCK, WS_URL } from '../lib/config'
+import { API_KEY, STOMP_AGENTS_TOPIC, USE_MOCK, WS_URL } from '../lib/config'
 import { startSimulator } from '../mocks/simulator'
 import { useRealtimeStore } from '../store/realtimeStore'
 import { dispatch } from './dispatch'
@@ -19,7 +19,8 @@ export function connectRealtime(qc: QueryClient): () => void {
 
   let hasConnected = false
   const client = new Client({
-    brokerURL: WS_URL,
+    // WebSocket của trình duyệt không đặt được header nên khoá đi trên URL
+    brokerURL: API_KEY ? `${WS_URL}?access_token=${encodeURIComponent(API_KEY)}` : WS_URL,
     // Tự nối lại với khoảng chờ tăng dần 1s, 2s, 4s... tối đa 30s
     reconnectDelay: 1000,
     reconnectTimeMode: ReconnectionTimeMode.EXPONENTIAL,
