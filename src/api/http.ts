@@ -31,9 +31,11 @@ export async function request<T>(
   schema: z.ZodType<T>,
   body?: unknown,
   signal?: AbortSignal,
+  /** true = luôn gọi BE thật, kể cả khi VITE_USE_MOCK=true (dữ liệu thật như 9Router không được giả) */
+  live = false,
 ): Promise<T> {
   let json: unknown
-  if (USE_MOCK) {
+  if (USE_MOCK && !live) {
     json = await new Promise((resolve, reject) => {
       if (signal?.aborted) return reject(new DOMException('Aborted', 'AbortError'))
       signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')), { once: true })
